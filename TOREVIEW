@@ -1,0 +1,20 @@
+All files have to be reviewed by someone else before committing, 
+here are the guidelines for reviewing a file
+
+Ensure;
+1) its free from simple errors
+2) it is nicely written
+3) that every function and module is documented 
+4) comments are where they are needed
+5) it has a this at the top
+"""
+@author: there name
+@reviewer: your name
+""" 
+6) if its all looking good, then push it.
+
+To get your file reviewed;
+1) pastebin the diff or code, and put its location at the top for the push
+
+Files to be reviewed;
+-
