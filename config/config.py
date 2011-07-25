@@ -50,11 +50,11 @@ class _UglyConfig(object):
             self.config.add_section('ide')
         self.file = open('config.cfg','w')
 
-    def set_option(self, option, value):
+    def set_config(self, option, value):
         """Set the value to the option inside the default section."""
         self.config.set('ide',option, value)
         
-    def get_option(self, option):
+    def get_config(self, option):
         """Return the values to the option given, or return None"""
         try:
             return self.config.get('ide', option)
