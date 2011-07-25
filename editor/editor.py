@@ -104,6 +104,9 @@ class Editor(stc.StyledTextCtrl):
         last_line_no = self.GetCurrentLine()
         last_line = self.GetLine(last_line_no)
         self.NewLine()
+        
+        #TODO: Someone come fix smart indenting to work right.         
+        
         if last_line.endswith(':'):
             level = self.GetLineIndentation(self.GetCurrentLine()-1)
             if level == 0:
