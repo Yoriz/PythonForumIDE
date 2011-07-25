@@ -139,7 +139,7 @@ class MainFrame(wx.Frame):
         self.title = "PF-IDE - %s"
         self.text_input = Editor(self)
         self.spawn_menus()
-        
+
     def open_file(self, event):
         """Open file, sets the text of Editor to the contents of that file."""
         dlg = wx.FileDialog(self, "Open a file", self.dirname, 
@@ -165,8 +165,8 @@ class MainFrame(wx.Frame):
         is in seperate methods, this is one of them."""
         menuBar = wx.MenuBar()
         fileMenu = wx.Menu()
-        
-<<<<<<< HEAD
+
+
         fileMenu.Append(wx.ID_ANY, "Open\tCtrl+O") 
         fileMenu.Append(wx.ID_ANY, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "File")
@@ -174,7 +174,7 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(menuBar)
         self.Bind(wx.EVT_MENU, self.open_file, id= 1)  
         self.Bind(wx.EVT_MENU, self.exit, id = 2)
-=======
+
         open_selection = fileMenu.Append(wx.ID_ANY, "Open\tCtrl+O") 
         exit_selection = fileMenu.Append(wx.ID_ANY, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "File")
@@ -182,8 +182,8 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(menuBar)
         self.Bind(wx.EVT_MENU, self.on_open, open_selection)  
         self.Bind(wx.EVT_MENU, self.on_close, exit_selection)
->>>>>>> 949ccac6bcf29d16cf1d5b6098fda0af56770f5d
-        
+
+
 if __name__=='__main__':
     app = wx.PySimpleApp()
     frame = MainFrame(parent=None, id=-1)
