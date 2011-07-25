@@ -175,15 +175,6 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.open_file, id= 1)  
         self.Bind(wx.EVT_MENU, self.exit, id = 2)
 
-        open_selection = fileMenu.Append(wx.ID_ANY, "Open\tCtrl+O") 
-        exit_selection = fileMenu.Append(wx.ID_ANY, "Exit\tCtrl+Q")
-        menuBar.Append(fileMenu, "File")
-
-        self.SetMenuBar(menuBar)
-        self.Bind(wx.EVT_MENU, self.on_open, open_selection)  
-        self.Bind(wx.EVT_MENU, self.on_close, exit_selection)
-
-
 if __name__=='__main__':
     app = wx.PySimpleApp()
     frame = MainFrame(parent=None, id=-1)
