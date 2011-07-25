@@ -1,3 +1,8 @@
+"""
+@author: Jakob, David
+@reviewer: Somelauw
+"""
+
 import wx
 import wx.stc as stc
 import os
@@ -100,7 +105,7 @@ class MainFrame(wx.Frame):
         self.spawn_menus()
         
     def on_open(self, event):
-        """Opens file, sets the text of Editor to the contents."""
+        """Open file, sets the text of Editor to the contents of that file."""
         dlg = wx.FileDialog(self, "Open a file", self.dirname, 
                             "", "*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
@@ -114,7 +119,7 @@ class MainFrame(wx.Frame):
         dlg.Destroy()
 
     def on_close(self, event):
-        """Checks that the user wants to close."""
+        """Prompt user then quit."""
         dial = wx.MessageDialog(None,'Do you really want to exit?',
                                 'Exit Python IDE',
                                 wx.YES_NO |wx.ICON_QUESTION)
