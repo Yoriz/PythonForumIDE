@@ -20,6 +20,7 @@ class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
         self.faces = None #will be a config object
+        self.indent_level = 0        
         self.SetGenerics()        
         self.SetMargins()        
         self.SetStyles()
@@ -35,7 +36,6 @@ class Editor(stc.StyledTextCtrl):
         self.SetLexer(stc.STC_LEX_PYTHON) #is this giving us trouble? 
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%(mono)s,size:%(size)d" % faces) #set mono spacing here!
         self.SetTabWidth(4)
-        self.SetIndent(4)
         self.SetIndentationGuides(1)
         #Indentation will only use space characters if useTabs is false
         self.SetUseTabs(False)
@@ -100,20 +100,21 @@ class Editor(stc.StyledTextCtrl):
 
 
             
-    def SmartIndent(self):
+    def SmartIndent(self, indentlevel = 0):
         last_line_no = self.GetCurrentLine()
-        print "Last line number %s" % last_line_no
         last_line = self.GetLine(last_line_no)
         self.NewLine()
         if last_line.endswith(':'):
-            print "match"
-            line = self.GetCurrentLine()
-            print "current line %s" % line
-            indent = self.GetLineIndentation(line)
-            print "current indent %s" % indent
-            self.SetLineIndentation(line, indent + 1)
-            print "new indent %s" % self.GetLineIndentation(line)
-   
+            level = self.GetLineIndentation(self.GetCurrentLine()-1)
+            if level == 0:
+                self.indent_level += 1
+            indent = "    " * self.indent_level
+            self.AddText(indent)
+            self.indent_level += 1
+        else:
+            if self.indent_level > 0:
+                self.indent_level -= 1
+
     def GetCode(self):
         text = self.GetText()
         if not isinstance(text, unicode):
