@@ -100,23 +100,21 @@ class Editor(stc.StyledTextCtrl):
 
 
             
-    def SmartIndent(self, indentlevel = 0):
+    def SmartIndent(self):
+        
         last_line_no = self.GetCurrentLine()
-        last_line = self.GetLine(last_line_no)
+        # TODO:
+        # The below line tries to ignore colons which appear in comments.
+        # However, it also ignores colons on any line after a # appears
+        # in a string. Must fix.
+        last_line = self.GetLine(last_line_no).split('#')[0]
         self.NewLine()
         
-        #TODO: Someone come fix smart indenting to work right.         
-        
+        indent_level = self.GetLineIndentation(last_line_no) // 4
         if last_line.endswith(':'):
-            level = self.GetLineIndentation(self.GetCurrentLine()-1)
-            if level == 0:
-                self.indent_level += 1
-            indent = "    " * self.indent_level
-            self.AddText(indent)
-            self.indent_level += 1
-        else:
-            if self.indent_level > 0:
-                self.indent_level -= 1
+            indent_level += 1
+        indent = "    " * indent_level
+        self.AddText(indent)
 
     def GetCode(self):
         text = self.GetText()
