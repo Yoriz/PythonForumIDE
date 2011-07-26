@@ -134,7 +134,7 @@ class Editor(stc.StyledTextCtrl):
 
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
-    def __init__(self, parent,id):
+    def __init__(self, parent, id):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - *', size=(660,590))
@@ -153,6 +153,16 @@ class MainFrame(wx.Frame):
             self.editor.LoadFile(os.path.join(self.dir_name, self.file_name))
             self.SetTitle(self.title % self.file_name)
         dlg.Destroy()
+
+    def on_undo(self, event):
+        """Checks if can Undo and if yes undoes"""
+        if self.editor.CanUndo() == 1:
+            self.editor.Undo()
+        
+    def on_redo(self, event):
+        """Checks if can Redo and if yes redoes"""
+        if self.editor.CanRedo() == 1:
+            self.editor.Redo()
 
     def exit(self, event):
         """Prompt user then quit."""
@@ -178,6 +188,13 @@ class MainFrame(wx.Frame):
         fileMenu.Append(exit_id, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "File")
         
+        editMenu = wx.Menu()
+        undo_id = wx.NewId()
+        editMenu.Append(undo_id, "Undo\tCtrl+Z")
+        redo_id = wx.NewId()
+        editMenu.Append(redo_id, "Redo\tCtrl+Y")
+        menuBar.Append(editMenu, "Edit")
+        
         runMenu = wx.Menu()
         run_id = wx.NewId()
         runMenu.Append(run_id, "Run file")
@@ -187,6 +204,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.open_file, id=open_id)  
         self.Bind(wx.EVT_MENU, self.exit, id=exit_id)
         self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
+        
+        self.Bind(wx.EVT_MENU, self.on_undo, id=undo_id)
+        self.Bind(wx.EVT_MENU, self.on_redo, id=redo_id)
 
 if __name__=='__main__':
     app = wx.PySimpleApp()
