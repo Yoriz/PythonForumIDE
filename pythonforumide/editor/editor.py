@@ -3,12 +3,13 @@
 @reviewer: Somelauw
 """
 
-from utils.Interpreter import Interpreter
-from utils.textutils import split_comments
+#from pythonforumide.utils.Interpreter import Interpreter
+from pythonforumide.utils.textutils import split_comments
 from output import OutputFrame
 import wx
 import wx.stc as stc
 import os
+import code
 
 #TODO: make customisable font and sizes. Perhaps maked this named tuple?
 faces = { 'times': 'Times',
@@ -115,13 +116,17 @@ class Editor(stc.StyledTextCtrl):
         self.AddText(indent)
 
     def run(self, event):
-        interpreter = Interpreter()
-        text = self.GetText()
+        #interpreter = Interpreter()
+        interpreter = code.InteractiveInterpreter()
+        text = self.GetText()        
         if not isinstance(text, unicode):
             text.encode("utf-8")
-        result = interpreter.run(compile(text, self.filename or '<script>', 'exec'))
-        output.Show()
-        output.SetText(result)
+        if not self.filename:
+            self.filename = "<script>"
+        result, error = interpreter.runsource(text, self.filename, 'exec')
+        out = OutputFrame(parent=None, id=-1)
+        out.Show()
+        out.output.SetText(result.read())
         
     def OnKeyDown(self, event):
         key = event.GetKeyCode()
@@ -192,7 +197,5 @@ if __name__=='__main__':
     app = wx.PySimpleApp()
     frame = MainFrame(parent=None, id=-1)
     frame.Show()
-    output = OutputFrame(praent=None, id=-1)
-    output.Hide()
     #frame.Maximize() #Left commented to stop it getting on my nerves.
     app.MainLoop()

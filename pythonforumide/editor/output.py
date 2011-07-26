@@ -18,3 +18,4 @@ class OutputFrame(wx.Frame):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
                               id, 'Python - *', size=(660,590))
+        self.output = Output(self)
