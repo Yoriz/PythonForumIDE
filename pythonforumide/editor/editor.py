@@ -2,7 +2,7 @@
 @author: Jakob, David
 @reviewer: Somelauw
 """
-from pythonforum.utils.interpreter import Interpreter
+from pythonforumide.utils.Interpreter import Interpreter
 import wx
 import wx.stc as stc
 import os
@@ -20,6 +20,7 @@ class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
         self.faces = None #will be a config object
+        self.filename = ''
         self.indent_level = 0        
         self.SetGenerics()        
         self.SetMargins()        
@@ -116,11 +117,12 @@ class Editor(stc.StyledTextCtrl):
         indent = "    " * indent_level
         self.AddText(indent)
 
-    def GetCode(self):
+    def run(self):
+        interpreter = Interpreter()
         text = self.GetText()
         if not isinstance(text, unicode):
             text.encode("utf-8")
-        #pass to interpreter.run here
+        interpreter.run(compile(text, self.filename or '<script>', 'exec'))
         
     def OnKeyDown(self, event):
         key = event.GetKeyCode()
@@ -139,7 +141,7 @@ class MainFrame(wx.Frame):
                               id, 'PF-IDE - *', size=(660,590))
         self.dirname = ''
         self.title = "PF-IDE - %s"
-        self.text_input = Editor(self)
+        self.editor = Editor(self)
         self.spawn_menus()
 
     def open_file(self, event):
@@ -166,16 +168,20 @@ class MainFrame(wx.Frame):
         """To keep the __init__ short and to aid debugging the construction
         is in seperate methods, this is one of them."""
         menuBar = wx.MenuBar()
+        
         fileMenu = wx.Menu()
-
-
         fileMenu.Append(wx.ID_ANY, "Open\tCtrl+O") 
         fileMenu.Append(wx.ID_ANY, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "File")
+        
+        runMenu = wx.Menu()
+        runMenu.Append(wx.ID_ANY, "Run file")
+        menuBar.Append(runMenu, "Run")
 
         self.SetMenuBar(menuBar)
         self.Bind(wx.EVT_MENU, self.open_file, id= 1)  
         self.Bind(wx.EVT_MENU, self.exit, id = 2)
+        self.Bind(wx.EVT_MENU, self.editor.run, id=4)
 
 if __name__=='__main__':
     app = wx.PySimpleApp()
