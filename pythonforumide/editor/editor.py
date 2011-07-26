@@ -3,6 +3,7 @@
 @reviewer: Somelauw
 """
 from pythonforumide.utils.Interpreter import Interpreter
+from output import OutputFrame
 import wx
 import wx.stc as stc
 import os
@@ -101,8 +102,7 @@ class Editor(stc.StyledTextCtrl):
 
 
             
-    def SmartIndent(self):
-        
+    def SmartIndent(self):     
         last_line_no = self.GetCurrentLine()
         # TODO:
         # The below line tries to ignore colons which appear in comments.
@@ -122,7 +122,9 @@ class Editor(stc.StyledTextCtrl):
         text = self.GetText()
         if not isinstance(text, unicode):
             text.encode("utf-8")
-        interpreter.run(compile(text, self.filename or '<script>', 'exec'))
+        result = interpreter.run(compile(text, self.filename or '<script>', 'exec'))
+        output.Show()
+        output.SetText(result)
         
     def OnKeyDown(self, event):
         key = event.GetKeyCode()
@@ -187,5 +189,7 @@ if __name__=='__main__':
     app = wx.PySimpleApp()
     frame = MainFrame(parent=None, id=-1)
     frame.Show()
+    output = OutputFrame(praent=None, id=-1)
+    output.Hide()
     #frame.Maximize() #Left commented to stop it getting on my nerves.
     app.MainLoop()
