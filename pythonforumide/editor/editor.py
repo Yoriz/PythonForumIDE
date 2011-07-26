@@ -101,21 +101,20 @@ class Editor(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "face:%(mono)s,fore:#990000,back:#C0C0C0,italic,size:%(size)d" % faces)
         # End of line where string is not closed
         self.StyleSetSpec(stc.STC_P_STRINGEOL, "face:%(mono)s,fore:#000000,face:%(mono)s,back:#E0C0E0,eol,size:%(size)d" % faces)
-
-
             
     def SmartIndent(self):     
         last_line_no = self.GetCurrentLine()
         last_line = split_comments(self.GetLine(last_line_no))[0]
         self.NewLine()
-        
         indent_level = self.GetLineIndentation(last_line_no) // 4
+        
         if last_line.endswith(':'):
             indent_level += 1
+
         indent = "    " * indent_level
         self.AddText(indent)
 
-    def run(self):
+    def run(self, event):
         interpreter = Interpreter()
         text = self.GetText()
         if not isinstance(text, unicode):
@@ -169,19 +168,25 @@ class MainFrame(wx.Frame):
         is in seperate methods, this is one of them."""
         menuBar = wx.MenuBar()
         
+        # Changed these IDs from wx.ID_ANY to wx.NewId, allowing
+        # them to be properly bound.
+        
         fileMenu = wx.Menu()
-        fileMenu.Append(wx.ID_ANY, "Open\tCtrl+O") 
-        fileMenu.Append(wx.ID_ANY, "Exit\tCtrl+Q")
+        open_id = wx.NewId()
+        fileMenu.Append(open_id, "Open\tCtrl+O") 
+        exit_id = wx.NewId()
+        fileMenu.Append(exit_id, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "File")
         
         runMenu = wx.Menu()
-        runMenu.Append(wx.ID_ANY, "Run file")
+        run_id = wx.NewId()
+        runMenu.Append(run_id, "Run file")
         menuBar.Append(runMenu, "Run")
 
         self.SetMenuBar(menuBar)
-        self.Bind(wx.EVT_MENU, self.open_file, id= 1)  
-        self.Bind(wx.EVT_MENU, self.exit, id = 2)
-        self.Bind(wx.EVT_MENU, self.editor.run, id=4)
+        self.Bind(wx.EVT_MENU, self.open_file, id=open_id)  
+        self.Bind(wx.EVT_MENU, self.exit, id=exit_id)
+        self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
 
 if __name__=='__main__':
     app = wx.PySimpleApp()
