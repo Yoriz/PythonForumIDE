@@ -2,7 +2,7 @@
 @author: Jakob, David
 @reviewer: Somelauw
 """
-from utils.interpreter import Interpreter
+from PythonForumIDE.utils.interpreter import Interpreter
 import wx
 import wx.stc as stc
 import os
