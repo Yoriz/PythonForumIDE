@@ -132,6 +132,36 @@ class Editor(stc.StyledTextCtrl):
         else:
             event.Skip()
 
+    def on_undo(self, event):
+        """Checks if can Undo and if yes undoes"""
+        if self.CanUndo() == 1:
+            self.Undo()
+        
+    def on_redo(self, event):
+        """Checks if can Redo and if yes redoes"""
+        if self.CanRedo() == 1:
+            self.Redo()
+
+    def on_cut(self, event):
+        """Cuts selected text"""
+        self.Cut()
+        
+    def on_copy(self, event):
+        """Copies selected text"""
+        self.Copy()
+        
+    def on_paste(self, event):
+        """Pastes selected text"""
+        self.Paste()
+        
+    def on_clear(self, event):
+        """Deletes selected text"""
+        self.Clear()
+
+    def on_select_all(self, event):
+        """Selects all the text, this function is not necessary but makes it cleaner"""
+        self.SelectAll()
+
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
     def __init__(self, parent, id):
@@ -153,36 +183,6 @@ class MainFrame(wx.Frame):
             self.editor.LoadFile(os.path.join(self.dir_name, self.file_name))
             self.SetTitle(self.title % self.file_name)
         dlg.Destroy()
-
-    def on_undo(self, event):
-        """Checks if can Undo and if yes undoes"""
-        if self.editor.CanUndo() == 1:
-            self.editor.Undo()
-        
-    def on_redo(self, event):
-        """Checks if can Redo and if yes redoes"""
-        if self.editor.CanRedo() == 1:
-            self.editor.Redo()
-
-    def on_cut(self, event):
-        """Cuts selected text"""
-        self.editor.Cut()
-        
-    def on_copy(self, event):
-        """Copies selected text"""
-        self.editor.Copy()
-        
-    def on_paste(self, event):
-        """Pastes selected text"""
-        self.editor.Paste()
-        
-    def on_clear(self, event):
-        """Deletes selected text"""
-        self.editor.Clear()
-
-    def on_select_all(self, event):
-        """Selects all the text, this function is not necessary but makes it cleaner"""
-        self.editor.SelectAll()
 
     def exit(self, event):
         """Prompt user then quit."""
@@ -238,15 +238,13 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.exit, id=exit_id)
         self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
         
-        self.Bind(wx.EVT_MENU, self.on_undo, id=undo_id)
-        self.Bind(wx.EVT_MENU, self.on_redo, id=redo_id)
-        self.Bind(wx.EVT_MENU, self.on_cut, id=cut_id)
-        self.Bind(wx.EVT_MENU, self.on_copy, id=copy_id)
-        self.Bind(wx.EVT_MENU, self.on_paste, id=paste_id)
-        self.Bind(wx.EVT_MENU, self.on_clear, id=clear_id)
-        self.Bind(wx.EVT_MENU, self.on_select_all, id=select_all_id)
-        
-        
+        self.Bind(wx.EVT_MENU, self.editor.on_undo, id=undo_id)
+        self.Bind(wx.EVT_MENU, self.editor.on_redo, id=redo_id)
+        self.Bind(wx.EVT_MENU, self.editor.on_cut, id=cut_id)
+        self.Bind(wx.EVT_MENU, self.editor.on_copy, id=copy_id)
+        self.Bind(wx.EVT_MENU, self.editor.on_paste, id=paste_id)
+        self.Bind(wx.EVT_MENU, self.editor.on_clear, id=clear_id)
+        self.Bind(wx.EVT_MENU, self.editor.on_select_all, id=select_all_id)
 
 if __name__=='__main__':
     app = wx.PySimpleApp()
