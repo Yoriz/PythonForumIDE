@@ -25,11 +25,11 @@ class _BeautifulConfig(object):
             self.config = {}
             self.file = open('config.yaml', 'w')
     
-    def set_config(self, option, value):
+    def __setitem__(self, option, value):
         """Set an option to a value inside the config, does not write."""
         self.config[option] = value
         
-    def get_config(self, option):
+    def __getitem__(self, option):
         """Gets the option from the config, if the option is not there
         returns None"""
         return self.config.get(option, None)
@@ -50,11 +50,11 @@ class _UglyConfig(object):
             self.config.add_section('ide')
         self.file = open('config.cfg','w')
 
-    def set_config(self, option, value):
+    def __setitem__(self, option, value):
         """Set the value to the option inside the default section."""
         self.config.set('ide',option, value)
         
-    def get_config(self, option):
+    def __getitem__(self, option):
         """Return the values to the option given, or return None"""
         try:
             return self.config.get('ide', option)

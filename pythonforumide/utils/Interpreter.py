@@ -12,11 +12,16 @@ import subprocess
 import version
 
 class Interpreter(object):
-    def __init__(self):
-        self.python = subprocess.Popen(version.get_python_exe(), 
-                                       stdout = StringIO(),
-                                        stderr = StringIO())        
+    def __init__(self, filename):
+        self.python_exe = version.get_python_exe()
+    
+    
+    def launch(self):
         
+        self.python = subprocess.Popen(, 
+                                       stdout = subprocess.PIPE,
+                                        stderr = subprocess.PIPE,
+                                        stdin = subprocess.PIPE) 
     def write(self, data):
         print data
     
