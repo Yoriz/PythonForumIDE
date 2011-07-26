@@ -2,7 +2,8 @@
 @author: Jakob, David
 @reviewer: Somelauw
 """
-from pythonforumide.utils.Interpreter import Interpreter
+
+from utils.Interpreter import Interpreter
 from output import OutputFrame
 import wx
 import wx.stc as stc

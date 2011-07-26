@@ -4,6 +4,7 @@ Created on Mon Jul 25 17:22:44 2011
 
 @author: jakob
 """
+
 import wx
 from editor.editor import MainFrame
 
