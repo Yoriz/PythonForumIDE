@@ -1,9 +1,10 @@
 """
-@author: Jakob, David
+@author: Jakob, David, bunburya
 @reviewer: Somelauw
 """
 
 from utils.Interpreter import Interpreter
+from utils.textutils import split_comments
 from output import OutputFrame
 import wx
 import wx.stc as stc
@@ -105,11 +106,7 @@ class Editor(stc.StyledTextCtrl):
             
     def SmartIndent(self):     
         last_line_no = self.GetCurrentLine()
-        # TODO:
-        # The below line tries to ignore colons which appear in comments.
-        # However, it also ignores colons on any line after a # appears
-        # in a string. Must fix.
-        last_line = self.GetLine(last_line_no).split('#')[0]
+        last_line = split_comments(self.GetLine(last_line_no))[0]
         self.NewLine()
         
         indent_level = self.GetLineIndentation(last_line_no) // 4
