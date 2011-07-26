@@ -3,8 +3,9 @@
 @reviewer: Somelauw
 """
 
-#from pythonforumide.utils.Interpreter import Interpreter
-from pythonforumide.utils.textutils import split_comments
+## Do not include pythonforumide in import path, as this breaks imports.
+#from utils.Interpreter import Interpreter
+from utils.textutils import split_comments
 from output import OutputFrame
 import wx
 import wx.stc as stc
