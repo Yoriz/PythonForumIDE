@@ -150,7 +150,7 @@ class MainFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             self.file_name=dlg.GetFilename()
             self.dir_name=dlg.GetDirectory()
-            self.text_input.LoadFile(os.path.join(self.dir_name, self.file_name))
+            self.editor.LoadFile(os.path.join(self.dir_name, self.file_name))
             self.SetTitle(self.title % self.file_name)
         dlg.Destroy()
 
