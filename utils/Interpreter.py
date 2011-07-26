@@ -6,6 +6,10 @@ Created on Mon Jul 25 17:05:42 2011
 """
 
 class Interpreter(object):
+    
+    def __init__(self):
+        self.last_code = ''
+  
     def run(self, code_object, g = None, l = None):
         if (g is None) or (l is None):
             exec code_object
