@@ -3,15 +3,14 @@
 @reviewer: Somelauw
 """
 
-## Do not include pythonforumide in import path, as this breaks imports.
-#from utils.Interpreter import Interpreter
+#YES DIRT HACK GET OVER IT. Dont remove it might go before it goes into master
+import sys
+sys.path.append('..')
+
 from utils.textutils import split_comments
-from output import OutputFrame
-import wx
 import wx.stc as stc
-import wx.aui as aui
+import wx
 import os
-import code
 
 #TODO: make customisable font and sizes. Perhaps maked this named tuple?
 faces = { 'times': 'Times',
@@ -22,26 +21,20 @@ faces = { 'times': 'Times',
               'size2': 10,
              }
 
-class Notebook(aui.AuiNotebook):
-    def __init__(self, *args, **kwargs):
-        super(Notebook, self).__init__(*args, **kwargs)
-        self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.on_tab_closed)
-        
-    def on_tab_closed(self, event):
-        # MainFrame.editors Notebook.GetSelection() 
-        print "TODO: Remove the self.editor instance correspondent to the tab closed from self.editors (MainFrame)"
 
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
-        self.faces = None #will be a config object
+
         self.filename = ''
+        self.directory = '.'
+        self.filepath = ''
         self.indent_level = 0        
+          
         self.SetGenerics()        
         self.SetMargins()        
         self.SetStyles()
         self.SetBindings()
-        self.filepath = ''
 
     def SetBindings(self):
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
@@ -126,19 +119,6 @@ class Editor(stc.StyledTextCtrl):
 
         indent = "    " * indent_level
         self.AddText(indent)
-
-    def run(self, event):
-        #interpreter = Interpreter()
-        interpreter = code.InteractiveInterpreter()
-        text = self.GetText()        
-        if not isinstance(text, unicode):
-            text.encode("utf-8")
-        if not self.filename:
-            self.filename = "<script>"
-        result, error = interpreter.runsource(text, self.filename, 'exec')
-        out = OutputFrame(parent=None, id=-1)
-        out.Show()
-        out.output.SetText(result.read())
         
     def OnKeyDown(self, event):
         key = event.GetKeyCode()
@@ -179,76 +159,41 @@ class Editor(stc.StyledTextCtrl):
         """Selects all the text, this function is not necessary but makes it cleaner"""
         self.SelectAll()
 
-class MainFrame(wx.Frame):
-    """Class with the GUI and GUI functions"""
-    def __init__(self, parent, id):
-        """Creates the frame, calls some construction methods."""
-        wx.Frame.__init__(self, parent,
-                              id, 'PF-IDE - *', size=(660,590))
-        self.title = "PF-IDE - %s"
-        
-        self.notebook = Notebook(self)
-        self.editors = []
-        
-        self.editor = Editor(self)
-        self.editors.append(self.editor)
-        
-        self.notebook.AddPage(self.editors[0], "Untitled 1")
-        
-        #self.notebook.GetRowCount()
-        
-        self.spawn_menus()
-    
-    @property
-    def dirname(self):
-        return os.path.dirname(self.editor.filepath)
-
     def get_file(self, prompt, style):
         """Abstracted method to prompt the user for a file path.
         Returns a 2-tuple consisting of directory path and file name."""
-        dlg = wx.FileDialog(self, prompt, self.dirname, '', '*.*', style)
+        dlg = wx.FileDialog(self, prompt, self.directory, '', '*.*', style)
         if dlg.ShowModal() == wx.ID_OK:
             dirname = dlg.GetDirectory()
             filename = dlg.GetFilename()
         else:
-            # I guess this means something has gone wrong with the dialog,
             # so maybe add error handling here.
-            pass
+            raise RuntimeError("I guess something has gone wrong with the dialog")
         dlg.Destroy()
         return dirname, filename
-       
-    def on_new(self, event):
-        """Opens a new tab with a new editor instance"""
-        #We need to figure out a way of having several editors, perhaps a list
-        self.editor = Editor(self)
-        self.editors.append(self.editor)
         
-        #The next line is a dirty hack, needs fix?
-        self.notebook.AddPage(self.editor, "Untitled %s" % str(self.editors.index(self.editor)+1)) #The +1 is because indexes start at 0
-
+    def save_file(self):
+        if self.filepath:
+            self.SaveFile(self.filepath)
+        else:
+            self.save_file_as(self)
+            
+    def save_file_as(self):
+        dirname, filename = self.get_file('Save file as', wx.SAVE)
+        path = os.path.join(dirname, filename)
+        if path:
+            self.SaveFile(path)
+            self.SetTitle("%s.py" % filename)
+            
     def open_file(self):
         """Open file, sets the text of Editor to the contents of that file."""
         dirname, filename = self.get_file('Open a file', wx.OPEN)
         path = os.path.join(dirname, filename)
         if path:
             self.pathname = path
-            self.editors[self.notebook.GetSelection()].LoadFile(path)
-            self.SetTitle(self.title % filename)
-    
-    def save_file(self):
-        if self.editor.filepath:
-            self.editor.SaveFile(self.editor.filepath)
-        else:
-            self.save_file_as(self)
-        
-    def save_file_as(self):
-        dirname, filename = self.get_file('Save file as', wx.SAVE)
-        path = os.path.join(dirname, filename)
-        if path:
-            self.editors[self.notebook.GetSelection()] = path
-            self.editors[self.notebook.GetSelection()].SaveFile(path)
-            self.SetTitle(self.title % filename)
-
+            self.LoadFile(path)
+            self.SetTitle("%s.py" % filename)
+            
     def exit(self):
         """Prompt user then quit."""
         dial = wx.MessageDialog(None,'Do you really want to exit?',
@@ -260,82 +205,4 @@ class MainFrame(wx.Frame):
 
         if dial.ShowModal() == wx.ID_YES:
             self.Destroy()
-    
-    def on_open(self, event):
-        self.open_file()
-    def on_save(self, event):
-        self.save_file()
-    def on_save_as(self, event):
-        self.save_file_as()
-    def on_exit(self, event):
-        self.exit()
-    
-    def spawn_menus(self):
-        """To keep the __init__ short and to aid debugging the construction
-        is in seperate methods, this is one of them."""
-        menuBar = wx.MenuBar()
-        
-        fileMenu = wx.Menu()
-        new_id = wx.NewId()
-        fileMenu.Append(new_id, "New\tCtrl+N")
-        open_id = wx.NewId()
-        fileMenu.Append(open_id, "Open\tCtrl+O") 
-        save_id = wx.NewId()
-        fileMenu.Append(save_id, "Save\tCtrl+S")
-        save_as_id = wx.NewId()
-        fileMenu.Append(save_as_id, "Save as")
-        exit_id = wx.NewId()
-        fileMenu.Append(exit_id, "Exit\tCtrl+Q")
-        menuBar.Append(fileMenu, "&File")
-        
-        editMenu = wx.Menu()
-        undo_id = wx.NewId()
-        editMenu.Append(undo_id, "Undo\tCtrl+Z")
-        redo_id = wx.NewId()
-        editMenu.Append(redo_id, "Redo\tCtrl+Y")
-        editMenu.AppendSeparator()
-        cut_id = wx.NewId()
-        editMenu.Append(cut_id, "Cut\tCtrl+X")
-        copy_id = wx.NewId()
-        editMenu.Append(copy_id, "Copy\tCtrl+C")
-        paste_id = wx.NewId()
-        editMenu.Append(paste_id, "Paste\tCtrl+V")
-        clear_id = wx.NewId()
-        editMenu.Append(clear_id, "Delete")
-        editMenu.AppendSeparator()
-        select_all_id = wx.NewId()
-        editMenu.Append(select_all_id, "Select All\tCtrl+A")
-        menuBar.Append(editMenu, "&Edit")
-        
-        runMenu = wx.Menu()
-        run_id = wx.NewId()
-        runMenu.Append(run_id, "Run file\tF5")
-        menuBar.Append(runMenu, "&Run")
-
-        self.SetMenuBar(menuBar)
-        
-        #File Menu
-        self.Bind(wx.EVT_MENU, self.on_new, id=new_id)
-        self.Bind(wx.EVT_MENU, self.on_open, id=open_id)  
-        self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
-        self.Bind(wx.EVT_MENU, self.on_save, id=save_id)
-        self.Bind(wx.EVT_MENU, self.on_save_as, id=save_as_id)
-        
-        #Edit Menu
-        self.Bind(wx.EVT_MENU, self.editor.on_undo, id=undo_id)
-        self.Bind(wx.EVT_MENU, self.editor.on_redo, id=redo_id)
-        self.Bind(wx.EVT_MENU, self.editor.on_cut, id=cut_id)
-        self.Bind(wx.EVT_MENU, self.editor.on_copy, id=copy_id)
-        self.Bind(wx.EVT_MENU, self.editor.on_paste, id=paste_id)
-        self.Bind(wx.EVT_MENU, self.editor.on_clear, id=clear_id)
-        self.Bind(wx.EVT_MENU, self.editor.on_select_all, id=select_all_id)
-        
-        #Run Menu
-        self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
-
-if __name__=='__main__':
-    app = wx.PySimpleApp()
-    frame = MainFrame(parent=None, id=-1)
-    frame.Show()
-    #frame.Maximize() #Left commented to stop it getting on my nerves.
-    app.MainLoop()
+            
