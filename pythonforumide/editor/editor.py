@@ -259,7 +259,7 @@ class MainFrame(wx.Frame):
         fileMenu.Append(save_as_id, "Save as")
         exit_id = wx.NewId()
         fileMenu.Append(exit_id, "Exit\tCtrl+Q")
-        menuBar.Append(fileMenu, "File")
+        menuBar.Append(fileMenu, "&File")
         
         editMenu = wx.Menu()
         undo_id = wx.NewId()
@@ -279,7 +279,7 @@ class MainFrame(wx.Frame):
         select_all_id = wx.NewId()
         editMenu.Append(select_all_id, "Select All\tCtrl+A")
         
-        menuBar.Append(editMenu, "Edit")
+        menuBar.Append(editMenu, "&Edit")
         
         runMenu = wx.Menu()
         run_id = wx.NewId()
