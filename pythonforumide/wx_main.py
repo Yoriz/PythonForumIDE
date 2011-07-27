@@ -49,13 +49,14 @@ class MainFrame(wx.Frame):
         self.notebook.AddPage(editor, editor.filename)
 
     def on_open(self, event):
-        self.current_editor.open_file()
         editor = Editor(self.notebook)
-        self.notebook.editors[self.notebook.GetPageCount()] = editor
-        editor.
-
-        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
-
+        tab_number = self.notebook.GetPageCount()
+        self.notebook.editors[tab_number] = editor
+        self.notebook.SetPageText(self.notebook.GetSelection(), editor.filename)
+        self.notebook.SetSelection(tab_number)
+        self.current_editor = editor
+        self.current_editor.open_file()
+        
     def on_save(self, event):
         self.current_editor.save_file()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
@@ -63,6 +64,7 @@ class MainFrame(wx.Frame):
     def on_save_as(self, event):
         self.current_editor.save_file_as()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+    
     def on_exit(self, event):
         dial = wx.MessageDialog(None,'Do you really want to exit?',
                         'Exit Python IDE',
@@ -152,4 +154,4 @@ if __name__=='__main__':
     reactor.listenTCP(frame.port, ListenFactory())
     reactor.spawnProcess(*spawn_python())
     #frame.Maximize() #Left commented to stop it getting on my nerves.
-#    reactor.run()
+    reactor.run()

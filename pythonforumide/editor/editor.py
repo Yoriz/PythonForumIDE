@@ -188,6 +188,7 @@ class Editor(stc.StyledTextCtrl):
         """Open file, sets the text of Editor to the contents of that file."""
         dirname, filename = self.get_file('Open a file', wx.OPEN)
         path = os.path.join(dirname, filename)
+        self.filename = filename
         if path:
             self.pathname = path
             self.LoadFile(path)
