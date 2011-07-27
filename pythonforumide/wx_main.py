@@ -4,9 +4,15 @@ Created on Wed Jul 27 17:36:42 2011
 
 @author: jakob
 """
+import wx
+from twisted.internet import wxreactor
+wxreactor.install()
+
+from twisted.internet import reactor
+from twisted.internet.protocol import Factory, Protocol
 from editor.editor import Editor
 from editor.notebook import Notebook
-import wx
+from utils.version import get_free_port
 
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
@@ -14,6 +20,9 @@ class MainFrame(wx.Frame):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - 0.1a', size=(660,590))
+
+        self.port = get_free_port()        
+        
         self.notebook = Notebook(self)
 
         #perhaps open last edited in the future, for now just open new.
@@ -98,9 +107,22 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.current_editor.on_clear, id=clear_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_select_all, id=select_all_id)
 
+class InProtocol(Protocol):
+    def connectionMade(self):
+        print "Got connection!!!!"
+        
+    def connectionLost(self, reason):
+        print "Connection closed."
+
+class ListenFactory(Factory):
+    protocol = InProtocol
+
 if __name__=='__main__':
-    app = wx.PySimpleApp()
+    app = wx.PySimpleApp(False)
     frame = MainFrame(parent=None, id=-1)
+    print frame.port
     frame.Show()
+    reactor.registerWxApp(app)
+    reactor.listenTCP(frame.port, ListenFactory())
     #frame.Maximize() #Left commented to stop it getting on my nerves.
-    app.MainLoop()
+    reactor.run()
