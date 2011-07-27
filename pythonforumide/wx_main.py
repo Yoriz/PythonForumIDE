@@ -13,6 +13,7 @@ from twisted.internet.protocol import Factory, Protocol
 from editor.editor import Editor
 from editor.notebook import Notebook
 from utils.version import get_free_port
+from utils.interpreter import spawn_python
 
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
@@ -125,7 +126,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.current_editor.on_clear, id=clear_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_select_all, id=select_all_id)
 
-class InProtocol(Protocol):
+class ListenProtocol(Protocol):
     def connectionMade(self):
         print "Got connection!!!!"
         
@@ -133,7 +134,7 @@ class InProtocol(Protocol):
         print "Connection closed."
 
 class ListenFactory(Factory):
-    protocol = InProtocol
+    protocol = ListenProtocol
 
 if __name__=='__main__':
     app = wx.PySimpleApp(False)
@@ -142,5 +143,6 @@ if __name__=='__main__':
     frame.Show()
     reactor.registerWxApp(app)
     reactor.listenTCP(frame.port, ListenFactory())
+    reactor.spawnProcess(*spawn_python())
     #frame.Maximize() #Left commented to stop it getting on my nerves.
-    reactor.run()
+#    reactor.run()
