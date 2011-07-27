@@ -12,7 +12,7 @@ from utils.version import get_python_exe
 
 class PythonProcessProtocol(ProcessProtocol):       
     def __init__(self, frame)    
-    
+        self.frame = frame
     def connectionMade(self):
         print "subprocess open."
         self.transport.write("2+2")
