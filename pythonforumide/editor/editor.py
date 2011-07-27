@@ -269,10 +269,7 @@ class MainFrame(wx.Frame):
         self.save_file_as()
     def on_exit(self, event):
         self.exit()
-
-    def on_tab_closed(self, event):
-        print "hey"
-
+    
     def spawn_menus(self):
         """To keep the __init__ short and to aid debugging the construction
         is in seperate methods, this is one of them."""
