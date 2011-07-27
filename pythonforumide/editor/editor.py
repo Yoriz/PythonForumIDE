@@ -113,7 +113,7 @@ class Editor(stc.StyledTextCtrl):
         self.NewLine()
         indent_level = self.GetLineIndentation(last_line_no) // 4
         
-        if last_line.endswith(':'):
+        if last_line.rstrip().endswith(':'):
             indent_level += 1
         elif any(last_line.lstrip().startswith(token) 
                  for token in ["return", "break", "yield"]):
