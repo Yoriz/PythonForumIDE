@@ -192,15 +192,12 @@ class Editor(stc.StyledTextCtrl):
             self.pathname = path
             self.LoadFile(path)
             
-    def exit(self):
-        """Prompt user then quit."""
-        dial = wx.MessageDialog(None,'Do you really want to exit?',
-                                'Exit Python IDE',
-                                wx.YES_NO | wx.ICON_QUESTION)
+    def on_close(self):
+        """Closes current tab"""
+
         # TODO: we also need to work in a way of detecting if a file
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
 
-        if dial.ShowModal() == wx.ID_YES:
-            self.Destroy()
+        #Should close current tab
             

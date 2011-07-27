@@ -47,7 +47,15 @@ class MainFrame(wx.Frame):
         self.current_editor.save_file_as()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
     def on_exit(self, event):
-        self.current_editor.exit()    
+        dial = wx.MessageDialog(None,'Do you really want to exit?',
+                        'Exit Python IDE',
+                        wx.YES_NO | wx.ICON_QUESTION)
+        # TODO: we also need to work in a way of detecting if a file
+        # has changed since last save/load, and if so prompt the user
+        # to save before exit.
+
+        if dial.ShowModal() == wx.ID_YES:
+            self.Destroy()
     def spawn_menus(self):
         """To keep the __init__ short and to aid debugging the construction
         is in seperate methods, this is one of them."""
@@ -61,6 +69,8 @@ class MainFrame(wx.Frame):
         fileMenu.Append(save_id, "Save\tCtrl+S")
         save_as_id = wx.NewId()
         fileMenu.Append(save_as_id, "Save as")
+        close_tab_id = wx.NewId()
+        fileMenu.Append(close_tab_id, "Close\tCtrl+W")
         exit_id = wx.NewId()
         fileMenu.Append(exit_id, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "&File")
@@ -86,12 +96,15 @@ class MainFrame(wx.Frame):
         run_id = wx.NewId()
         runMenu.Append(run_id, "Run file\tF5")
         menuBar.Append(runMenu, "&Run")
-        self.SetMenuBar(menuBar)  
+        self.SetMenuBar(menuBar)
+        
         self.Bind(wx.EVT_MENU, self.on_new, id=new_id)
         self.Bind(wx.EVT_MENU, self.on_open, id=open_id)  
         self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
         self.Bind(wx.EVT_MENU, self.on_save, id=save_id)
         self.Bind(wx.EVT_MENU, self.on_save_as, id=save_as_id)
+        self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
+        self.Bind(wx.EVT_MENU, self.current_editor.on_close, id=close_tab_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_undo, id=undo_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_redo, id=redo_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_cut, id=cut_id)
