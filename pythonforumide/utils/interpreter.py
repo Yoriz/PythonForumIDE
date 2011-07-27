@@ -25,4 +25,4 @@ class PythonProcessProtocol(ProcessProtocol):
         print "Got stderr!"
 
 def spawn_python():
-    return [PythonProcessProtocol(), get_python_exe(), ["python"]]
+    return [PythonProcessProtocol(None), get_python_exe(), ["python"]]
