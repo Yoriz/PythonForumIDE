@@ -15,17 +15,14 @@ class Interpreter(object):
     def __init__(self, filename):
         self.python_exe = version.get_python_exe()
     
-    
-    def launch(self):
-        
-        self.python = subprocess.Popen(, 
+    def launch(self):    
+        self.python = subprocess.Popen(self.python_exe, 
                                        stdout = subprocess.PIPE,
                                         stderr = subprocess.PIPE,
                                         stdin = subprocess.PIPE) 
     def write(self, data):
         print data
     
-
 class IPythonInterpreter(Interpreter):
     """In the future we might be embedding IPython"""
     pass
