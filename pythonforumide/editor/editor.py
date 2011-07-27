@@ -179,8 +179,14 @@ class MainFrame(wx.Frame):
         self.title = "PF-IDE - %s"
         
         self.notebook = aui.AuiNotebook(self)
+        self.editors = []
+        
         self.editor = Editor(self)
-        self.notebook.AddPage(self.editor, "Untitled")
+        self.editors.append(self.editor)
+        
+        self.notebook.AddPage(self.editors[0], "Untitled 1")
+        
+        #self.notebook.GetRowCount()
         
         self.spawn_menus()
     
@@ -205,7 +211,11 @@ class MainFrame(wx.Frame):
     def on_new(self, event):
         """Opens a new tab with a new editor instance"""
         #We need to figure out a way of having several editors, perhaps a list
-        self.notebook.AddPage(self.editor, "Untitled")
+        self.editor = Editor(self)
+        self.editors.append(self.editor)
+        
+        #The next line is a dirty hack, needs fix?
+        self.notebook.AddPage(self.editor, "Untitled %s" % str(self.editors.index(self.editor)+1)) #The +1 is because indexes start at 0
 
     def open_file(self):
         """Open file, sets the text of Editor to the contents of that file."""
@@ -213,7 +223,7 @@ class MainFrame(wx.Frame):
         path = os.path.join(dirname, filename)
         if path:
             self.pathname = path
-            self.editor.LoadFile(path)
+            self.editors[self.notebook.GetSelection()].LoadFile(path)
             self.SetTitle(self.title % filename)
     
     def save_file(self):
@@ -226,8 +236,8 @@ class MainFrame(wx.Frame):
         dirname, filename = self.get_file('Save file as', wx.SAVE)
         path = os.path.join(dirname, filename)
         if path:
-            self.editor.filepath = path
-            self.editor.SaveFile(path)
+            self.editors[self.notebook.GetSelection()] = path
+            self.editors[self.notebook.GetSelection()].SaveFile(path)
             self.SetTitle(self.title % filename)
 
     def exit(self):
