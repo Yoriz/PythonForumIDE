@@ -53,16 +53,9 @@ class MainFrame(wx.Frame):
         self.notebook.InsertPage(0, editor, editor.filename)
         editor.open_file()
         self.notebook.SetSelection(0)
-#        tab_number = self.notebook.GetPageCount()
-#        self.notebook.editors[tab_number] = editor
-#        self.notebook.AddPage(editor, editor.filename)
-#        self.current_editor.open_file()
-#        self.notebook.SetSelection(tab_number)
         self.notebook.SetPageText(0, editor.filename)
         self.current_editor = self.notebook.editors[0]
-
-
-        
+   
     def on_save(self, event):
         self.current_editor.save_file()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
