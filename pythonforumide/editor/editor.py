@@ -247,9 +247,6 @@ class MainFrame(wx.Frame):
         is in seperate methods, this is one of them."""
         menuBar = wx.MenuBar()
         
-        # Changed these IDs from wx.ID_ANY to wx.NewId, allowing
-        # them to be properly bound.
-        
         fileMenu = wx.Menu()
         open_id = wx.NewId()
         fileMenu.Append(open_id, "Open\tCtrl+O") 
@@ -278,21 +275,22 @@ class MainFrame(wx.Frame):
         editMenu.AppendSeparator()
         select_all_id = wx.NewId()
         editMenu.Append(select_all_id, "Select All\tCtrl+A")
-        
         menuBar.Append(editMenu, "&Edit")
         
         runMenu = wx.Menu()
         run_id = wx.NewId()
-        runMenu.Append(run_id, "Run file")
+        runMenu.Append(run_id, "Run file\tF5")
         menuBar.Append(runMenu, "&Run")
 
         self.SetMenuBar(menuBar)
+        
+        #File Menu
         self.Bind(wx.EVT_MENU, self.on_open, id=open_id)  
         self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
         self.Bind(wx.EVT_MENU, self.on_save, id=save_id)
         self.Bind(wx.EVT_MENU, self.on_save_as, id=save_as_id)
-        self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
         
+        #Edit Menu
         self.Bind(wx.EVT_MENU, self.editor.on_undo, id=undo_id)
         self.Bind(wx.EVT_MENU, self.editor.on_redo, id=redo_id)
         self.Bind(wx.EVT_MENU, self.editor.on_cut, id=cut_id)
@@ -300,6 +298,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.editor.on_paste, id=paste_id)
         self.Bind(wx.EVT_MENU, self.editor.on_clear, id=clear_id)
         self.Bind(wx.EVT_MENU, self.editor.on_select_all, id=select_all_id)
+        
+        #Run Menu
+        self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
 
 if __name__=='__main__':
     app = wx.PySimpleApp()
