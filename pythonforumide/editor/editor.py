@@ -203,4 +203,4 @@ class Editor(stc.StyledTextCtrl):
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
 
-        #To be coded yet
+        self.GetParent().DeletePage(self.GetParent().GetSelection())

@@ -52,10 +52,11 @@ class MainFrame(wx.Frame):
         editor = Editor(self.notebook)
         tab_number = self.notebook.GetPageCount()
         self.notebook.editors[tab_number] = editor
-        self.notebook.SetPageText(self.notebook.GetSelection(), editor.filename)
-        self.notebook.SetSelection(tab_number)
-        self.current_editor = editor
-        self.current_editor.open_file()
+#         self.current_editor.open_file()
+#        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+#        self.notebook.SetSelection(tab_number)
+#        self.current_editor = editor
+#        self.current_editor.open_file()
         
     def on_save(self, event):
         self.current_editor.save_file()
@@ -75,6 +76,7 @@ class MainFrame(wx.Frame):
 
         if dial.ShowModal() == wx.ID_YES:
             self.Destroy()
+
     def spawn_menus(self):
         """To keep the __init__ short and to aid debugging the construction
         is in seperate methods, this is one of them."""
