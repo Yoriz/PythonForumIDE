@@ -22,6 +22,15 @@ faces = { 'times': 'Times',
               'size2': 10,
              }
 
+class Notebook(aui.AuiNotebook):
+    def __init__(self, *args, **kwargs):
+        super(Notebook, self).__init__(*args, **kwargs)
+        self.Bind(aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.on_tab_closed)
+        
+    def on_tab_closed(self, event):
+        # MainFrame.editors Notebook.GetSelection() 
+        print "TODO: Remove the self.editor instance correspondent to the tab closed from self.editors (MainFrame)"
+
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
@@ -178,7 +187,7 @@ class MainFrame(wx.Frame):
                               id, 'PF-IDE - *', size=(660,590))
         self.title = "PF-IDE - %s"
         
-        self.notebook = aui.AuiNotebook(self)
+        self.notebook = Notebook(self)
         self.editors = []
         
         self.editor = Editor(self)
@@ -260,6 +269,9 @@ class MainFrame(wx.Frame):
         self.save_file_as()
     def on_exit(self, event):
         self.exit()
+
+    def on_tab_closed(self, event):
+        print "hey"
 
     def spawn_menus(self):
         """To keep the __init__ short and to aid debugging the construction
