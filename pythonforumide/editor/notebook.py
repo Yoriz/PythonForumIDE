@@ -2,7 +2,7 @@
 """
 Created on Wed Jul 27 17:36:42 2011
 
-@author: jakob
+@author: jakob, David
 """
 
 import wx.aui as aui
@@ -23,4 +23,3 @@ class Notebook(aui.AuiNotebook):
                 ghosts.append(key)
         for ghost in ghosts:
             self.DeletePage(ghost)
-        

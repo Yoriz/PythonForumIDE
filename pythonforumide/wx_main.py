@@ -2,7 +2,7 @@
 """
 Created on Wed Jul 27 17:36:42 2011
 
-@author: jakob
+@author: jakob, David
 """
 from editor.editor import Editor
 from editor.notebook import Notebook
@@ -15,6 +15,7 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - 0.1a', size=(660,590))
         self.notebook = Notebook(self)
+        self.untitled_index = 1
 
         #perhaps open last edited in the future, for now just open new.
         editor = Editor(self.notebook)  
@@ -31,7 +32,8 @@ class MainFrame(wx.Frame):
     def on_new(self, event):
         """Opens a new tab with a new editor instance"""
         editor = Editor(self.notebook)
-        editor.filename = "untitled.py"
+        editor.filename = "untitled%s.py" % self.untitled_index
+        self.untitled_index += 1
 
         self.notebook.editors[self.notebook.GetPageCount()] = editor        
         self.notebook.AddPage(editor, editor.filename)
