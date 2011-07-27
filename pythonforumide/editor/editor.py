@@ -31,6 +31,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetMargins()        
         self.SetStyles()
         self.SetBindings()
+        self.filepath = ''
 
     def SetBindings(self):
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
@@ -174,30 +175,72 @@ class MainFrame(wx.Frame):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - *', size=(660,590))
-        self.dirname = ''
         self.title = "PF-IDE - %s"
         self.editor = Editor(self)
         self.spawn_menus()
+    
+    @property
+    def dirname(self):
+        return os.path.dirname(self.editor.filepath)
 
-    def open_file(self, event):
-        """Open file, sets the text of Editor to the contents of that file."""
-        dlg = wx.FileDialog(self, "Open a file", self.dirname, 
-                            "", "*.*", wx.OPEN)
+    def get_file(self, prompt, style):
+        """Abstracted method to prompt the user for a file path.
+        Returns a 2-tuple consisting of directory path and file name."""
+        dlg = wx.FileDialog(self, prompt, self.dirname, '', '*.*', style)
         if dlg.ShowModal() == wx.ID_OK:
-            self.file_name=dlg.GetFilename()
-            self.dir_name=dlg.GetDirectory()
-            self.editor.LoadFile(os.path.join(self.dir_name, self.file_name))
-            self.SetTitle(self.title % self.file_name)
+            dirname = dlg.GetDirectory()
+            filename = dlg.GetFilename()
+        else:
+            # I guess this means something has gone wrong with the dialog,
+            # so maybe add error handling here.
+            pass
         dlg.Destroy()
+        return dirname, filename
+            
 
-    def exit(self, event):
+    def open_file(self):
+        """Open file, sets the text of Editor to the contents of that file."""
+        dirname, filename = self.get_file('Open a file', wx.OPEN)
+        path = os.path.join(dirname, filename)
+        if path:
+            self.pathname = path
+            self.editor.LoadFile(path)
+            self.SetTitle(self.title % filename)
+    
+    def save_file(self):
+        if self.editor.filepath:
+            self.editor.SaveFile(self.editor.filepath)
+        else:
+            self.save_file_as(self)
+        
+    def save_file_as(self):
+        dirname, filename = self.get_file('Save file as', wx.SAVE)
+        path = os.path.join(dirname, filename)
+        if path:
+            self.editor.filepath = path
+            self.editor.SaveFile(path)
+            self.SetTitle(self.title % filename)
+
+    def exit(self):
         """Prompt user then quit."""
         dial = wx.MessageDialog(None,'Do you really want to exit?',
                                 'Exit Python IDE',
                                 wx.YES_NO | wx.ICON_QUESTION)
+        # TODO: we also need to work in a way of detecting if a file
+        # has changed since last save/load, and if so prompt the user
+        # to save before exit.
 
         if dial.ShowModal() == wx.ID_YES:
             self.Destroy()
+    
+    def on_open(self, event):
+        self.open_file()
+    def on_save(self, event):
+        self.save_file()
+    def on_save_as(self, event):
+        self.save_file_as()
+    def on_exit(self, event):
+        self.exit()
 
     def spawn_menus(self):
         """To keep the __init__ short and to aid debugging the construction
@@ -210,6 +253,10 @@ class MainFrame(wx.Frame):
         fileMenu = wx.Menu()
         open_id = wx.NewId()
         fileMenu.Append(open_id, "Open\tCtrl+O") 
+        save_id = wx.NewId()
+        fileMenu.Append(save_id, "Save\tCtrl+S")
+        save_as_id = wx.NewId()
+        fileMenu.Append(save_as_id, "Save as")
         exit_id = wx.NewId()
         fileMenu.Append(exit_id, "Exit\tCtrl+Q")
         menuBar.Append(fileMenu, "File")
@@ -240,8 +287,10 @@ class MainFrame(wx.Frame):
         menuBar.Append(runMenu, "Run")
 
         self.SetMenuBar(menuBar)
-        self.Bind(wx.EVT_MENU, self.open_file, id=open_id)  
-        self.Bind(wx.EVT_MENU, self.exit, id=exit_id)
+        self.Bind(wx.EVT_MENU, self.on_open, id=open_id)  
+        self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
+        self.Bind(wx.EVT_MENU, self.on_save, id=save_id)
+        self.Bind(wx.EVT_MENU, self.on_save_as, id=save_as_id)
         self.Bind(wx.EVT_MENU, self.editor.run, id=run_id)
         
         self.Bind(wx.EVT_MENU, self.editor.on_undo, id=undo_id)
