@@ -50,9 +50,16 @@ class MainFrame(wx.Frame):
 
     def on_open(self, event):
         self.current_editor.open_file()
+        editor = Editor(self.notebook)
+        self.notebook.editors[self.notebook.GetPageCount()] = editor
+        editor.
+
+        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+
     def on_save(self, event):
         self.current_editor.save_file()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+
     def on_save_as(self, event):
         self.current_editor.save_file_as()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
