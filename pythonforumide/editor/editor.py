@@ -284,7 +284,7 @@ class MainFrame(wx.Frame):
         runMenu = wx.Menu()
         run_id = wx.NewId()
         runMenu.Append(run_id, "Run file")
-        menuBar.Append(runMenu, "Run")
+        menuBar.Append(runMenu, "&Run")
 
         self.SetMenuBar(menuBar)
         self.Bind(wx.EVT_MENU, self.on_open, id=open_id)  
