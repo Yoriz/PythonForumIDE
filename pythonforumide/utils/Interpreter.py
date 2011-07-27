@@ -4,13 +4,24 @@ Created on Mon Jul 25 17:05:42 2011
 
 @author: jakob
 """
-from twisted.internet.protocol import ProcessProtocol
-from twisted.internet import reactor
+import sys
+sys.path.append('..')
 
-class PythonProcessProtocol(ProcessProtocol):
-    def __init__(self, text):
-        self.text = text
-        
+from twisted.internet.protocol import ProcessProtocol
+from utils.version import get_python_exe
+
+class PythonProcessProtocol(ProcessProtocol):       
+    def __init__(self, frame)    
+    
     def connectionMade(self):
-        self.transport.write(self.text)
-        self.transport.closeStdin()
+        print "subprocess open."
+        self.transport.write("2+2")
+        
+    def outReceived(self, data):
+        print "Got stdout."
+    
+    def errRecieved(self, data):
+        print "Got stderr!"
+
+def spawn_python():
+    return [PythonProcessProtocol(), get_python_exe(), ["python"]]
