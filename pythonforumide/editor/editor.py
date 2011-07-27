@@ -198,5 +198,6 @@ class Editor(stc.StyledTextCtrl):
         # TODO: we also need to work in a way of detecting if a file
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
+        # There should really be an editor instance method
 
         self.GetParent().DeletePage(self.GetParent().GetSelection())

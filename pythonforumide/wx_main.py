@@ -4,9 +4,16 @@ Created on Wed Jul 27 17:36:42 2011
 
 @author: jakob, David
 """
+import wx
+from twisted.internet import wxreactor
+wxreactor.install()
+
+from twisted.internet import reactor
+from twisted.internet.protocol import Factory, Protocol
 from editor.editor import Editor
 from editor.notebook import Notebook
-import wx
+from utils.version import get_free_port
+from utils.interpreter import spawn_python
 
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
@@ -14,6 +21,9 @@ class MainFrame(wx.Frame):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - 0.1a', size=(660,590))
+
+        self.port = get_free_port()        
+        
         self.notebook = Notebook(self)
         self.untitled_index = 1
 
@@ -40,9 +50,16 @@ class MainFrame(wx.Frame):
 
     def on_open(self, event):
         self.current_editor.open_file()
+        editor = Editor(self.notebook)
+        self.notebook.editors[self.notebook.GetPageCount()] = editor
+        editor.
+
+        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+
     def on_save(self, event):
         self.current_editor.save_file()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+
     def on_save_as(self, event):
         self.current_editor.save_file_as()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
@@ -115,9 +132,23 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.current_editor.on_clear, id=clear_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_select_all, id=select_all_id)
 
+class ListenProtocol(Protocol):
+    def connectionMade(self):
+        print "Got connection!!!!"
+        
+    def connectionLost(self, reason):
+        print "Connection closed."
+
+class ListenFactory(Factory):
+    protocol = ListenProtocol
+
 if __name__=='__main__':
-    app = wx.PySimpleApp()
+    app = wx.PySimpleApp(False)
     frame = MainFrame(parent=None, id=-1)
+    print frame.port
     frame.Show()
+    reactor.registerWxApp(app)
+    reactor.listenTCP(frame.port, ListenFactory())
+    reactor.spawnProcess(*spawn_python())
     #frame.Maximize() #Left commented to stop it getting on my nerves.
-    app.MainLoop()
+#    reactor.run()
