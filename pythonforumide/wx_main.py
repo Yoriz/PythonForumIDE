@@ -57,8 +57,7 @@ class MainFrame(wx.Frame):
         if dial.ShowModal() == wx.ID_YES:
             self.Destroy()
     def spawn_menus(self):
-        """To keep the __init__ short and to aid debugging the construction
-        is in seperate methods, this is one of them."""
+        """Spawns the menus and sets the bindings to keep __init__ short"""
         menuBar = wx.MenuBar()
         fileMenu = wx.Menu()
         new_id = wx.NewId()
