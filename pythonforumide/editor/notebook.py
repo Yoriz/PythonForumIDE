@@ -22,5 +22,5 @@ class Notebook(aui.AuiNotebook):
             if not isinstance(instance, Editor):
                 ghosts.append(key)
         for ghost in ghosts:
-            del self.editors[ghost]
+            self.DeletePage(ghost)
         

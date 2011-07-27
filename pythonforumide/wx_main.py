@@ -30,15 +30,8 @@ class MainFrame(wx.Frame):
     
     def on_new(self, event):
         """Opens a new tab with a new editor instance"""
-        a = 1
         editor = Editor(self.notebook)
         editor.filename = "untitled.py"
-        while True:
-            if editor.filename in self.notebook.editors:
-                a += 1
-                editor.filename = "untitled.py"
-            else:
-                break
 
         self.notebook.editors[self.notebook.GetPageCount()] = editor        
         self.notebook.AddPage(editor, editor.filename)
@@ -47,11 +40,12 @@ class MainFrame(wx.Frame):
         self.current_editor.open_file()
     def on_save(self, event):
         self.current_editor.save_file()
+        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
     def on_save_as(self, event):
         self.current_editor.save_file_as()
+        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
     def on_exit(self, event):
         self.current_editor.exit()    
-    
     def spawn_menus(self):
         """To keep the __init__ short and to aid debugging the construction
         is in seperate methods, this is one of them."""

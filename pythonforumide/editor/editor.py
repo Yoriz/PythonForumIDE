@@ -21,7 +21,6 @@ faces = { 'times': 'Times',
               'size2': 10,
              }
 
-
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
@@ -176,14 +175,14 @@ class Editor(stc.StyledTextCtrl):
         if self.filepath:
             self.SaveFile(self.filepath)
         else:
-            self.save_file_as(self)
+            self.save_file_as()
             
     def save_file_as(self):
         dirname, filename = self.get_file('Save file as', wx.SAVE)
+        self.filename = filename
         path = os.path.join(dirname, filename)
         if path:
             self.SaveFile(path)
-            self.SetTitle("%s.py" % filename)
             
     def open_file(self):
         """Open file, sets the text of Editor to the contents of that file."""
@@ -192,7 +191,6 @@ class Editor(stc.StyledTextCtrl):
         if path:
             self.pathname = path
             self.LoadFile(path)
-            self.SetTitle("%s.py" % filename)
             
     def exit(self):
         """Prompt user then quit."""
