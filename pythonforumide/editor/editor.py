@@ -9,6 +9,7 @@ from utils.textutils import split_comments
 from output import OutputFrame
 import wx
 import wx.stc as stc
+import wx.aui as aui
 import os
 import code
 
@@ -176,7 +177,11 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - *', size=(660,590))
         self.title = "PF-IDE - %s"
+        
+        self.notebook = aui.AuiNotebook(self)
         self.editor = Editor(self)
+        self.notebook.AddPage(self.editor, "Untitled")
+        
         self.spawn_menus()
     
     @property
@@ -196,7 +201,11 @@ class MainFrame(wx.Frame):
             pass
         dlg.Destroy()
         return dirname, filename
-            
+       
+    def on_new(self, event):
+        """Opens a new tab with a new editor instance"""
+        #We need to figure out a way of having several editors, perhaps a list
+        self.notebook.AddPage(self.editor, "Untitled")
 
     def open_file(self):
         """Open file, sets the text of Editor to the contents of that file."""
@@ -248,6 +257,8 @@ class MainFrame(wx.Frame):
         menuBar = wx.MenuBar()
         
         fileMenu = wx.Menu()
+        new_id = wx.NewId()
+        fileMenu.Append(new_id, "New\tCtrl+N")
         open_id = wx.NewId()
         fileMenu.Append(open_id, "Open\tCtrl+O") 
         save_id = wx.NewId()
@@ -285,6 +296,7 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(menuBar)
         
         #File Menu
+        self.Bind(wx.EVT_MENU, self.on_new, id=new_id)
         self.Bind(wx.EVT_MENU, self.on_open, id=open_id)  
         self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
         self.Bind(wx.EVT_MENU, self.on_save, id=save_id)
