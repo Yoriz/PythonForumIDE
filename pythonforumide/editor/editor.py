@@ -192,12 +192,11 @@ class Editor(stc.StyledTextCtrl):
             self.pathname = path
             self.LoadFile(path)
             
-    def on_close(self):
+    def on_close(self, event):
         """Closes current tab"""
 
         # TODO: we also need to work in a way of detecting if a file
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
 
-        #Should close current tab
-            
+        #To be coded yet
