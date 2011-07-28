@@ -30,6 +30,7 @@ class MainFrame(wx.Frame):
 
         # Set defaults
         conf.set_default("indent", 4)
+        conf.set_default("usetab", 0) #0 means false
         self.conf = conf
         self.conf.save()
         
@@ -46,9 +47,13 @@ class MainFrame(wx.Frame):
         self.spawn_menus()
 
     def add_editor(self, filename):
+        """Open an new empty editor instance in a new tab"""
         editor = Editor(self.notebook)
         editor.filename = filename
+
+        # Pass along config file
         editor.conf = self.conf
+
         self.untitled_index += 1
 
         self.notebook.editors[self.notebook.GetPageCount()] = editor        
@@ -56,13 +61,16 @@ class MainFrame(wx.Frame):
         
     def on_new(self, event):
         """Opens a new tab with a new editor instance"""
-        add_editor("untitled%s.py" % self.untitled_index)
+        self.add_editor("untitled%s.py" % self.untitled_index)
 
     def on_open(self, event):
         editor = Editor(self.notebook)
         self.notebook.InsertPage(0, editor, editor.filename)
         editor.open_file()
+
+        # Pass along config file
         editor.conf = self.conf
+
         self.notebook.SetSelection(0)
         self.notebook.SetPageText(0, editor.filename)
         self.current_editor = self.notebook.editors[0]

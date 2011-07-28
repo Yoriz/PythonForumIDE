@@ -108,13 +108,14 @@ class Editor(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_P_STRINGEOL, "face:%(mono)s,fore:#000000,face:%(mono)s,back:#E0C0E0,eol,size:%(size)d" % faces)
             
     def SmartIndent(self):     
-        # Read the amount of indentation from the config file
-        indent = int(self.conf["indent"])
+        # Read settings from the config file
+        indent_amount = int(self.conf["indent"])
+        usetab = int(self.conf["usetab"])
 
         last_line_no = self.GetCurrentLine()
         last_line = split_comments(self.GetLine(last_line_no))[0]
         self.NewLine()
-        indent_level = self.GetLineIndentation(last_line_no) // indent
+        indent_level = self.GetLineIndentation(last_line_no) // indent_amount
         
         if last_line.rstrip().endswith(':'):
             indent_level += 1
@@ -122,7 +123,11 @@ class Editor(stc.StyledTextCtrl):
                  for token in ["return", "break", "yield"]):
             indent_level = max([indent_level - 1, 0])
 
-        indent = indent * " " * indent_level
+        if usetab:
+            indent = "/t" * indent_level
+        else:
+            indent = indent_amount * " " * indent_level
+
         self.AddText(indent)
         print self.conf
         
