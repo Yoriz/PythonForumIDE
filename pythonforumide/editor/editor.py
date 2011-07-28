@@ -113,8 +113,11 @@ class Editor(stc.StyledTextCtrl):
         self.NewLine()
         indent_level = self.GetLineIndentation(last_line_no) // 4
         
-        if last_line.endswith(':'):
+        if last_line.rstrip().endswith(':'):
             indent_level += 1
+        elif any(last_line.lstrip().startswith(token) 
+                 for token in ["return", "break", "yield"]):
+            indent_level = max([indent_level - 1, 0])
 
         indent = "    " * indent_level
         self.AddText(indent)
@@ -188,6 +191,7 @@ class Editor(stc.StyledTextCtrl):
         """Open file, sets the text of Editor to the contents of that file."""
         dirname, filename = self.get_file('Open a file', wx.OPEN)
         path = os.path.join(dirname, filename)
+        self.filename = filename
         if path:
             self.pathname = path
             self.LoadFile(path)
@@ -198,6 +202,5 @@ class Editor(stc.StyledTextCtrl):
         # TODO: we also need to work in a way of detecting if a file
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
-        # There should really be an editor instance method
 
         self.GetParent().DeletePage(self.GetParent().GetSelection())

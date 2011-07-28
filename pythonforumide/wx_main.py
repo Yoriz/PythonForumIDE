@@ -49,13 +49,13 @@ class MainFrame(wx.Frame):
         self.notebook.AddPage(editor, editor.filename)
 
     def on_open(self, event):
-        self.current_editor.open_file()
         editor = Editor(self.notebook)
-        self.notebook.editors[self.notebook.GetPageCount()] = editor
-        editor.
-
-        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
-
+        self.notebook.InsertPage(0, editor, editor.filename)
+        editor.open_file()
+        self.notebook.SetSelection(0)
+        self.notebook.SetPageText(0, editor.filename)
+        self.current_editor = self.notebook.editors[0]
+   
     def on_save(self, event):
         self.current_editor.save_file()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
@@ -63,6 +63,7 @@ class MainFrame(wx.Frame):
     def on_save_as(self, event):
         self.current_editor.save_file_as()
         self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
+    
     def on_exit(self, event):
         dial = wx.MessageDialog(None,'Do you really want to exit?',
                         'Exit Python IDE',
@@ -73,6 +74,7 @@ class MainFrame(wx.Frame):
 
         if dial.ShowModal() == wx.ID_YES:
             self.Destroy()
+
     def spawn_menus(self):
         """Spawns the menus and sets the bindings to keep __init__ short"""
         menuBar = wx.MenuBar()
@@ -151,4 +153,4 @@ if __name__=='__main__':
     reactor.listenTCP(frame.port, ListenFactory())
     reactor.spawnProcess(*spawn_python())
     #frame.Maximize() #Left commented to stop it getting on my nerves.
-#    reactor.run()
+    reactor.run()
