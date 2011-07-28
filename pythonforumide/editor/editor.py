@@ -197,6 +197,7 @@ class Editor(stc.StyledTextCtrl):
             self.LoadFile(path)
     
     def on_replace(self, event):
+        """Displays a find/replace dialog"""
         #I think we should create a new frame for this, to be coded yet
     
     def on_close(self, event):

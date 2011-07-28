@@ -112,7 +112,6 @@ class MainFrame(wx.Frame):
         editMenu.AppendSeparator()
         select_all_id = wx.NewId()
         editMenu.Append(select_all_id, "Select All\tCtrl+A")
-        editMenu.AppendSeparator()
         menuBar.Append(editMenu, "&Edit")
         searchMenu = wx.Menu()
         find_replace_id = wx.NewId()
