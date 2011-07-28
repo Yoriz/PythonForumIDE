@@ -5,6 +5,7 @@ Created on Wed Jul 27 17:36:42 2011
 @author: jakob, David
 """
 import wx
+from config import config
 from twisted.internet import wxreactor
 wxreactor.install()
 
@@ -17,23 +18,20 @@ from utils.interpreter import spawn_python
 
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
-    def get_last_size(self):
-        """Returns the last size of the frame, 
-        located on the first two lines of CONFIG
-        This is so that the frame opens witht the same size it was closed"""
-        f = open("CONFIG", "r")
-        config_lines =  f.readlines()
-        config_lines[0] = config_lines[0].replace("\n", "")
-        config_lines[1] = config_lines[1].replace("\n", "")
-        frame_width = int(config_lines[0])
-        frame_height = int(config_lines[1])
-        f.close()
-        return (frame_width, frame_height)
-        
+
     def __init__(self, parent, id):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
-                              id, 'PF-IDE - 0.1a', size=self.get_last_size())
+                              id, 'PF-IDE - 0.1a')
+
+        # Load configuration
+        config_file = config.config_file("default")
+        conf = config.load_config(config_file)
+
+        # Set defaults
+        conf.set_default("indent", 4)
+        self.conf = conf
+
         
         self.port = get_free_port()        
         
@@ -41,30 +39,30 @@ class MainFrame(wx.Frame):
         self.untitled_index = 1
 
         #perhaps open last edited in the future, for now just open new.
-        editor = Editor(self.notebook)  
-        editor.filename = "untitled.py"
-        self.notebook.editors[self.notebook.GetPageCount()] = editor        
-        
-        for name, instance in self.notebook.editors.iteritems():
-            self.notebook.AddPage(instance, instance.filename)
+        self.add_editor("untitled.py")
                
         #self.notebook.GetRowCount()
         self.current_editor = self.notebook.editors[self.notebook.GetSelection()]
         self.spawn_menus()
-    
-    def on_new(self, event):
-        """Opens a new tab with a new editor instance"""
+
+    def add_editor(self, filename):
         editor = Editor(self.notebook)
-        editor.filename = "untitled%s.py" % self.untitled_index
+        editor.filename = filename
+        editor.conf = self.conf
         self.untitled_index += 1
 
         self.notebook.editors[self.notebook.GetPageCount()] = editor        
         self.notebook.AddPage(editor, editor.filename)
+        
+    def on_new(self, event):
+        """Opens a new tab with a new editor instance"""
+        add_editor("untitled%s.py" % self.untitled_index)
 
     def on_open(self, event):
         editor = Editor(self.notebook)
         self.notebook.InsertPage(0, editor, editor.filename)
         editor.open_file()
+        editor.conf = self.conf
         self.notebook.SetSelection(0)
         self.notebook.SetPageText(0, editor.filename)
         self.current_editor = self.notebook.editors[0]

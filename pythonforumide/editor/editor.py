@@ -121,6 +121,7 @@ class Editor(stc.StyledTextCtrl):
 
         indent = "    " * indent_level
         self.AddText(indent)
+        print self.conf
         
     def OnKeyDown(self, event):
         key = event.GetKeyCode()
