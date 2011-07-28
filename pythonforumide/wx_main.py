@@ -17,11 +17,24 @@ from utils.interpreter import spawn_python
 
 class MainFrame(wx.Frame):
     """Class with the GUI and GUI functions"""
+    def get_last_size(self):
+        """Returns the last size of the frame, 
+        located on the first two lines of CONFIG
+        This is so that the frame opens witht the same size it was closed"""
+        f = open("CONFIG", "r")
+        config_lines =  f.readlines()
+        config_lines[0] = config_lines[0].replace("\n", "")
+        config_lines[1] = config_lines[1].replace("\n", "")
+        frame_width = int(config_lines[0])
+        frame_height = int(config_lines[1])
+        f.close()
+        return (frame_width, frame_height)
+        
     def __init__(self, parent, id):
         """Creates the frame, calls some construction methods."""
         wx.Frame.__init__(self, parent,
-                              id, 'PF-IDE - 0.1a', size=(660,590))
-
+                              id, 'PF-IDE - 0.1a', size=self.get_last_size())
+        
         self.port = get_free_port()        
         
         self.notebook = Notebook(self)
@@ -71,6 +84,10 @@ class MainFrame(wx.Frame):
         # TODO: we also need to work in a way of detecting if a file
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
+
+        f = open("CONFIG", "w")
+        f.write("%s\n%s\n" % (self.GetSize()[0], self.GetSize()[1]))
+        f.close()
 
         if dial.ShowModal() == wx.ID_YES:
             self.Destroy()
