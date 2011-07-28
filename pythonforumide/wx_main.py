@@ -31,7 +31,7 @@ class MainFrame(wx.Frame):
         # Set defaults
         conf.set_default("indent", 4)
         self.conf = conf
-
+        self.conf.save()
         
         self.port = get_free_port()        
         
