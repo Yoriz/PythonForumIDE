@@ -112,7 +112,12 @@ class MainFrame(wx.Frame):
         editMenu.AppendSeparator()
         select_all_id = wx.NewId()
         editMenu.Append(select_all_id, "Select All\tCtrl+A")
+        editMenu.AppendSeparator()
         menuBar.Append(editMenu, "&Edit")
+        searchMenu = wx.Menu()
+        find_replace_id = wx.NewId()
+        searchMenu.Append(find_replace_id, "Replace\tCtrl+H")
+        menuBar.Append(searchMenu, "&Search")
         runMenu = wx.Menu()
         run_id = wx.NewId()
         runMenu.Append(run_id, "Run file\tF5")
@@ -133,6 +138,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.current_editor.on_paste, id=paste_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_clear, id=clear_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_select_all, id=select_all_id)
+        self.Bind(wx.EVT_MENU, self.current_editor.on_replace, id=find_replace_id)
 
 class ListenProtocol(Protocol):
     def connectionMade(self):

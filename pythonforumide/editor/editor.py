@@ -195,7 +195,10 @@ class Editor(stc.StyledTextCtrl):
         if path:
             self.pathname = path
             self.LoadFile(path)
-            
+    
+    def on_replace(self, event):
+        #I think we should create a new frame for this, to be coded yet
+    
     def on_close(self, event):
         """Closes current tab"""
 
@@ -203,4 +206,5 @@ class Editor(stc.StyledTextCtrl):
         # has changed since last save/load, and if so prompt the user
         # to save before exit.
 
+        #Closes the selected tab from the parent (notebook)
         self.GetParent().DeletePage(self.GetParent().GetSelection())
