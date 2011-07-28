@@ -146,6 +146,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_save, id=save_id)
         self.Bind(wx.EVT_MENU, self.on_save_as, id=save_as_id)
         self.Bind(wx.EVT_MENU, self.on_exit, id=exit_id)
+        self.Bind(wx.EVT_CLOSE, self.on_exit)
         self.Bind(wx.EVT_MENU, self.current_editor.on_close, id=close_tab_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_undo, id=undo_id)
         self.Bind(wx.EVT_MENU, self.current_editor.on_redo, id=redo_id)
