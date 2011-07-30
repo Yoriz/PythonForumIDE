@@ -4,6 +4,7 @@ Created on Wed Jul 27 17:36:42 2011
 
 @author: jakob, David
 """
+import os
 import wx
 from config import config
 from twisted.internet import wxreactor
@@ -24,81 +25,25 @@ class MainFrame(wx.Frame):
         wx.Frame.__init__(self, parent,
                               id, 'PF-IDE - 0.1a')
 
-        # Load configuration
-        config_file = config.config_file("default")
-        conf = config.load_config(config_file)
-
-        # Set defaults
-        conf.set_default("indent", 4)
-        conf.set_default("usetab", 0) #0 means false
-        self.conf = conf
-        self.conf.save()
+        self.conf = config.conf
         
-        self.port = get_free_port()        
+        self.port = get_free_port()
         
-        self.notebook = Notebook(self)
-        self.untitled_index = 1
+        sizer= wx.BoxSizer(wx.VERTICAL)
+        self.SetSizer(sizer)
+        panel= wx.Panel(self, style= wx.BORDER_THEME)
+        sizer.Add(panel, 1, wx.EXPAND|wx.ALL, 1)
+        panel_sizer= wx.BoxSizer(wx.VERTICAL)
+        panel.SetSizer(panel_sizer)
 
+        self.notebook = Notebook(panel)
+        panel_sizer.Add(self.notebook, 1, wx.EXPAND|wx.ALL, 0)        
+        
         #perhaps open last edited in the future, for now just open new.
-        self.add_editor("untitled.py")
-               
-        #self.notebook.GetRowCount()
-        self.current_editor = self.notebook.editors[self.notebook.GetSelection()]
+        self.notebook.new_editor_tab()
         self.spawn_menus()
         self.CreateStatusBar()
-
-    def add_editor(self, filename):
-        """Open an new empty editor instance in a new tab"""
-        editor = Editor(self.notebook)
-        editor.filename = filename
-
-        # Pass along config file
-        editor.conf = self.conf
-
-        self.untitled_index += 1
-
-        self.notebook.editors[self.notebook.GetPageCount()] = editor        
-        self.notebook.AddPage(editor, editor.filename)
-        
-    def on_new(self, event):
-        """Opens a new tab with a new editor instance"""
-        self.add_editor("untitled%s.py" % self.untitled_index)
-
-    def on_open(self, event):
-        editor = Editor(self.notebook)
-        self.notebook.InsertPage(0, editor, editor.filename)
-        editor.open_file()
-
-        # Pass along config file
-        editor.conf = self.conf
-
-        self.notebook.SetSelection(0)
-        self.notebook.SetPageText(0, editor.filename)
-        self.current_editor = self.notebook.editors[0]
    
-    def on_save(self, event):
-        self.current_editor.save_file()
-        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
-
-    def on_save_as(self, event):
-        self.current_editor.save_file_as()
-        self.notebook.SetPageText(self.notebook.GetSelection(), self.current_editor.filename)
-    
-    def on_exit(self, event):
-        dial = wx.MessageDialog(None,'Do you really want to exit?',
-                        'Exit Python IDE',
-                        wx.YES_NO | wx.ICON_QUESTION)
-        # TODO: we also need to work in a way of detecting if a file
-        # has changed since last save/load, and if so prompt the user
-        # to save before exit.
-
-        f = open("CONFIG", "w")
-        f.write("%s\n%s\n" % (self.GetSize()[0], self.GetSize()[1]))
-        f.close()
-
-        if dial.ShowModal() == wx.ID_YES:
-            self.Destroy()
-
     def spawn_menus(self):
         """Spawns the menus and sets the bindings to keep __init__ short"""
         menuBar = wx.MenuBar()
@@ -136,22 +81,102 @@ class MainFrame(wx.Frame):
         
         self.SetMenuBar(menuBar)
         
-        self.Bind(wx.EVT_MENU, self.on_new, id=wx.ID_NEW)
-        self.Bind(wx.EVT_MENU, self.on_open, id=wx.ID_OPEN)  
-        self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_CLOSE_ALL)
-        self.Bind(wx.EVT_MENU, self.on_save, id=wx.ID_SAVE)
-        self.Bind(wx.EVT_MENU, self.on_save_as, id=wx.ID_SAVEAS)
-        self.Bind(wx.EVT_MENU, self.on_exit, id=wx.ID_CLOSE_ALL)
-        self.Bind(wx.EVT_CLOSE, self.on_exit)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_close, id=wx.ID_CLOSE)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_undo, id=wx.ID_UNDO)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_redo, id=wx.ID_REDO)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_cut, id=wx.ID_CUT)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_copy, id=wx.ID_COPY)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_paste, id=wx.ID_PASTE)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_clear, id=wx.ID_DELETE)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_select_all, id=wx.ID_SELECTALL)
-        self.Bind(wx.EVT_MENU, self.current_editor.on_replace, id=wx.ID_FIND)
+        self.Bind(wx.EVT_MENU, self._evt_new, id=wx.ID_NEW)
+        self.Bind(wx.EVT_MENU, self._evt_open, id=wx.ID_OPEN)  
+        self.Bind(wx.EVT_MENU, self._evt_exit, id=wx.ID_CLOSE_ALL)
+        self.Bind(wx.EVT_MENU, self._evt_save, id=wx.ID_SAVE)
+        self.Bind(wx.EVT_MENU, self._evt_save_as, id=wx.ID_SAVEAS)
+        self.Bind(wx.EVT_MENU, self._evt_exit, id=wx.ID_CLOSE_ALL)
+        self.Bind(wx.EVT_CLOSE, self._evt_exit)
+        self.Bind(wx.EVT_MENU, self._evt_close_current_editor_tab, id=wx.ID_CLOSE)
+        self.Bind(wx.EVT_MENU, self._evt_undo_current_editor_tab, id=wx.ID_UNDO)
+        self.Bind(wx.EVT_MENU, self._evt_redo_current_editor_tab, id=wx.ID_REDO)
+        self.Bind(wx.EVT_MENU, self._evt_cut_current_editor_tab, id=wx.ID_CUT)
+        self.Bind(wx.EVT_MENU, self._evt_copy_current_editor_tab, id=wx.ID_COPY)
+        self.Bind(wx.EVT_MENU, self._evt_paste_current_editor_tab, id=wx.ID_PASTE)
+        self.Bind(wx.EVT_MENU, self._evt_clear_current_editor_tab, id=wx.ID_DELETE)
+        self.Bind(wx.EVT_MENU, self._evt_selectall_current_editor_tab, id=wx.ID_SELECTALL)
+        self.Bind(wx.EVT_MENU, self._evt_replace_current_editor_tab, id=wx.ID_FIND)
+
+    def _evt_new(self, event):
+        """Opens a new tab with a new editor instance"""
+        self.notebook.new_editor_tab()
+    
+    def _evt_open(self, event):
+        """Opens a new tab and ask for a file to load"""
+        self.notebook.open_editor_tab()
+    
+    def _evt_close_current_editor_tab(self, event):
+        """Closes the current editor tab"""
+        self.notebook.close_active_editor()
+        
+    def _evt_save(self, event):
+        """Saves the currently active file"""
+        self.notebook.save_active_editor_tab()
+        
+    def _evt_save_as(self, event):
+        """Save as required filename"""
+        self.notebook.save_as_active_editor_tab()
+    
+    def _evt_undo_current_editor_tab(self, event):
+        """Undo for the current editor tab"""
+        self.notebook.undo_active_editor()
+   
+    def _evt_redo_current_editor_tab(self, event):
+        """Redo for the current editor tab"""
+        self.notebook.redo_active_editor()
+        
+    def _evt_cut_current_editor_tab(self, event):
+        """Cut for the current editor tab"""
+        self.notebook.cut_active_editor()
+        
+    def _evt_copy_current_editor_tab(self, event):
+        """Copy for the current editor tab"""
+        self.notebook.copy_active_editor()
+    
+    def _evt_paste_current_editor_tab(self, event):
+        """paste for the current editor tab"""
+        self.notebook.paste_active_editor()
+        
+    def _evt_clear_current_editor_tab(self, event):
+        """Clear for the current editor tab"""
+        self.notebook.clear_active_editor()
+    
+    def _evt_selectall_current_editor_tab(self, event):
+        """Selectall for the current editor tab"""
+        self.notebook.selectall_active_editor()
+        
+    def _evt_replace_current_editor_tab(self, event):
+        """Replace for the current editor tab"""
+        self.notebook.replace_active_editor()
+        
+    def _evt_exit(self, event):
+        dial = wx.MessageDialog(None,'Do you really want to exit?',
+                        'Exit Python IDE',
+                        wx.YES_NO | wx.ICON_QUESTION)
+        # TODO: we also need to work in a way of detecting if a file
+        # has changed since last save/load, and if so prompt the user
+        # to save before exit.
+
+#        f = open("CONFIG", "w")
+#        f.write("%s\n%s\n" % (self.GetSize()[0], self.GetSize()[1]))
+#        f.close()
+
+        if dial.ShowModal() == wx.ID_YES:
+            self.Destroy()
+
+    def get_file(self, prompt, style):
+        """Abstracted method to prompt the user for a file path.
+        Returns a 2-tuple consisting of directory path and file name."""
+        dlg = wx.FileDialog(self, prompt, '.', '', '*.*', style)
+        if dlg.ShowModal() == wx.ID_OK:
+            dirname = dlg.GetDirectory()
+            filename = dlg.GetFilename()
+        else:
+            # so maybe add error handling here.
+            raise RuntimeError("I guess something has gone wrong with the dialog")
+        dlg.Destroy()
+        return dirname, filename
 
 class ListenProtocol(Protocol):
     def connectionMade(self):

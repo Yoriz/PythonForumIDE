@@ -123,3 +123,13 @@ else: # Otherwise we point to the ugly one
     Config = _UglyConfig
 #This way the importers use the config the same way, same api but under the 
 #hood they are different.
+
+# Load configuration
+config_file = config_file("default")
+conf = load_config(config_file)
+
+# Set defaults
+conf.set_default("indent", 4)
+conf.set_default("usetab", 0) #0 means false
+
+conf.save()

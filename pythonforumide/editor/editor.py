@@ -11,6 +11,7 @@ from utils.textutils import split_comments
 import wx.stc as stc
 import wx
 import os
+from config import config
 
 #TODO: make customisable font and sizes. Perhaps maked this named tuple?
 faces = { 'times': 'Times',
@@ -24,6 +25,7 @@ faces = { 'times': 'Times',
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
+        self.conf= config.conf
 
         self.filename = ''
         self.directory = '.'
@@ -140,81 +142,51 @@ class Editor(stc.StyledTextCtrl):
         else:
             event.Skip()
 
-    def on_undo(self, event):
+    def on_undo(self):
         """Checks if can Undo and if yes undoes"""
         if self.CanUndo() == 1:
             self.Undo()
         
-    def on_redo(self, event):
+    def on_redo(self):
         """Checks if can Redo and if yes redoes"""
         if self.CanRedo() == 1:
             self.Redo()
 
-    def on_cut(self, event):
+    def on_cut(self):
         """Cuts selected text"""
         self.Cut()
         
-    def on_copy(self, event):
+    def on_copy(self):
         """Copies selected text"""
         self.Copy()
         
-    def on_paste(self, event):
+    def on_paste(self):
         """Pastes selected text"""
         self.Paste()
         
-    def on_clear(self, event):
+    def on_clear(self):
         """Deletes selected text"""
         self.Clear()
 
-    def on_select_all(self, event):
+    def on_select_all(self):
         """Selects all the text, this function is not necessary but makes it cleaner"""
         self.SelectAll()
-
-    def get_file(self, prompt, style):
-        """Abstracted method to prompt the user for a file path.
-        Returns a 2-tuple consisting of directory path and file name."""
-        dlg = wx.FileDialog(self, prompt, self.directory, '', '*.*', style)
-        if dlg.ShowModal() == wx.ID_OK:
-            dirname = dlg.GetDirectory()
-            filename = dlg.GetFilename()
-        else:
-            # so maybe add error handling here.
-            raise RuntimeError("I guess something has gone wrong with the dialog")
-        dlg.Destroy()
-        return dirname, filename
+        
+    def load_file(self, path):
+        """Loads a new file"""
+        self.LoadFile(path)
+        self.filepath= path
         
     def save_file(self):
-        if self.filepath:
-            self.SaveFile(self.filepath)
-        else:
-            self.save_file_as()
-            
-    def save_file_as(self):
-        dirname, filename = self.get_file('Save file as', wx.SAVE)
-        self.filename = filename
-        path = os.path.join(dirname, filename)
-        if path:
-            self.SaveFile(path)
-            
-    def open_file(self):
-        """Open file, sets the text of Editor to the contents of that file."""
-        dirname, filename = self.get_file('Open a file', wx.OPEN)
-        path = os.path.join(dirname, filename)
-        self.filename = filename
-        if path:
-            self.pathname = path
-            self.LoadFile(path)
+        """Saves the current file"""
+        return self.SaveFile(self.filepath)
     
-    def on_replace(self, event):
+    def save_file_as(self, filepath):
+        """Save the current file as a new filepath"""
+        self.filepath= filepath
+        return self.save_file()
+    
+    def on_replace(self):
         """Displays a find/replace dialog"""
         #I think we should create a new frame for this, to be coded yet
-    
-    def on_close(self, event):
-        """Closes current tab"""
 
-        # TODO: we also need to work in a way of detecting if a file
-        # has changed since last save/load, and if so prompt the user
-        # to save before exit.
-
-        #Closes the selected tab from the parent (notebook)
-        self.GetParent().DeletePage(self.GetParent().GetSelection())
