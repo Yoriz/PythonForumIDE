@@ -40,7 +40,7 @@ class Notebook(aui.AuiNotebook):
         
     def open_editor_tab(self):
         """Loads a slected file into a new editor tab"""
-        dirname, filename= self.GetParent().get_file('Open a file', wx.OPEN)
+        dirname, filename= self.GetGrandParent().get_file('Open a file', wx.OPEN)
         if dirname and filename:
             editor= self.new_editor_tab(filename)
             path = os.path.join(dirname, filename)
@@ -55,7 +55,7 @@ class Notebook(aui.AuiNotebook):
             
     def save_as_active_editor_tab(self):
         """Save as for the currently active editor file"""
-        dirname, filename = self.GetParent().get_file('Save file as', wx.SAVE)
+        dirname, filename = self.GetGrandParent().get_file('Save file as', wx.SAVE)
         if dirname and filename:
             path = os.path.join(dirname, filename)
             if path:
