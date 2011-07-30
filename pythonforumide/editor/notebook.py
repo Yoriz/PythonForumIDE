@@ -31,7 +31,9 @@ class Notebook(aui.AuiNotebook):
         
     def new_editor_tab(self, page_name= ""):
         """Opens a new editor tab"""
-        editor= Editor(self) 
+        self.Freeze()
+        editor= Editor(self)
+        self.Thaw()
         self.AddPage(editor, page_name)
         self._active_editor_page= editor
         self.name_untitled_pages()
@@ -70,6 +72,7 @@ class Notebook(aui.AuiNotebook):
         
     def name_untitled_pages(self):
         """Renumbers the untitled pages"""
+        self.Freeze()
         empty_page_no= 1
         for page_no in xrange(self.GetPageCount()):
             page_text= self.GetPageText(page_no)
@@ -77,8 +80,11 @@ class Notebook(aui.AuiNotebook):
                 page= self.GetPage(page_no)
                 self.SetPageText(page_no, "Untitled%s.py" % (empty_page_no))
                 empty_page_no+= 1
-                
+        self.Thaw()
     
+    def get_active_editor(self):           
+        return self._active_editor_page
+                
     def close_active_editor(self):
         """Closes the currently active editor tab"""
         self.DeletePage(self._active_tab_index)
@@ -115,6 +121,72 @@ class Notebook(aui.AuiNotebook):
     def replace_active_editor(self):
         """Replace changes in active editor"""
         self._active_editor_page.on_replace()
+          
+    def active_editor_can_cut(self):
+        """Returns True if the active editor can cut"""
+        if self._active_editor_page:
+            return self._active_editor_page.CanCut()
+        else:
+            return False
+    
+    def active_editor_can_copy(self):
+        """Returns True if the active editor can copy"""
+        if self._active_editor_page:
+            return self._active_editor_page.CanCopy()
+        else:
+            return False
+    
+    def active_editor_can_paste(self):
+        """Returns True if the active editor can paste"""
+        if self._active_editor_page:
+            return self._active_editor_page.CanPaste()
+        else:
+            return False
+        
+    def active_editor_can_delete(self):
+        """Returns True if the active editor can delete"""
+        if self._active_editor_page:
+            return self._active_editor_page.HasSelection()
+        else:
+            return False
+    
+    
+    def active_editor_can_undo(self):
+        """Returns True if the active editor can undo"""
+        if self._active_editor_page:
+            return self._active_editor_page.CanUndo()
+        else:
+            return False
+    
+    def active_editor_can_redo(self):
+        """Returns True if the active editor can redo"""
+        if self._active_editor_page:
+            return self._active_editor_page.CanRedo()
+        else:
+            return False
+
+    def active_editor_can_save(self):
+        """Returns True if the active editor can save"""
+        if self._active_editor_page:
+            return True
+        else:
+            return False
+
+    def active_editor_can_saveas(self):
+        """Returns True if the active editor can saveas"""
+        if self._active_editor_page:
+            return True
+        else:
+            return False
+
+    
+    
+    
+    
+    
+    
+    
+    
 
             
         

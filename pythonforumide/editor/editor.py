@@ -25,10 +25,9 @@ faces = { 'times': 'Times',
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent):
         super(Editor, self).__init__(parent)
+
         self.conf= config.conf
 
-        self.filename = ''
-        self.directory = '.'
         self.filepath = ''
         self.indent_level = 0        
           

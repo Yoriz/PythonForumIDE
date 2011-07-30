@@ -43,6 +43,28 @@ class MainFrame(wx.Frame):
         self.notebook.new_editor_tab()
         self.spawn_menus()
         self.CreateStatusBar()
+        self.Bind(wx.EVT_UPDATE_UI, self._evt_update_ui)
+        
+    def _evt_update_ui(self, event):
+        event_id = event.GetId()
+        if event_id== wx.ID_CUT:
+            event.Enable(self.notebook.active_editor_can_cut())
+        elif event_id== wx.ID_COPY:
+            event.Enable(self.notebook.active_editor_can_copy())
+        elif event_id== wx.ID_PASTE:
+            event.Enable(self.notebook.active_editor_can_paste())
+        elif event_id== wx.ID_DELETE:
+            event.Enable(self.notebook.active_editor_can_delete())
+        elif event_id== wx.ID_UNDO:
+            event.Enable(self.notebook.active_editor_can_undo())
+        elif event_id== wx.ID_REDO:
+            event.Enable(self.notebook.active_editor_can_redo())
+        elif event_id== wx.ID_SAVE:
+            event.Enable(self.notebook.active_editor_can_save())
+        elif event_id== wx.ID_SAVEAS:
+            event.Enable(self.notebook.active_editor_can_saveas())
+        else:
+            event.Skip()
    
     def spawn_menus(self):
         """Spawns the menus and sets the bindings to keep __init__ short"""
